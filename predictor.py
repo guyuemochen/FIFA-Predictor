@@ -16,8 +16,8 @@ class SoccerGuess(nn.Module):
         output = self.sig(output)
         return output
 
-def getData(team1, team2, until = 1):
-    t1, t2 = getTwoCountriesUntil(team1, team2, until)
+def getData(team1, team2):
+    t1, t2 = getTwoCountriesUntil(team1, team2)
     return torch.FloatTensor(t1[0]+t2[0])
 
 def getTwoCountriesUntil(team1, team2, index = None):
