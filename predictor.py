@@ -6,11 +6,13 @@ class SoccerGuess(nn.Module):
 
     def __init__(self) -> None:
         super(SoccerGuess, self).__init__()
-        self.layer1 = nn.Linear(24, 3)
+        self.layer1 = nn.Linear(24, 48)
+        self.layer2 = nn.Linear(48, 3)
         self.sig = nn.Sigmoid()
     
     def forward(self, x):
         output = self.layer1(x)
+        output = self.layer2(output)
         output = self.sig(output)
         return output
 
