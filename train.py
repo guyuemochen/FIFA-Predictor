@@ -1,9 +1,10 @@
-import keras
-import itertools
 import numpy as np
-import os
-
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+import itertools
+import tensorflow as tf
+import tensorflow.keras as keras
+from tensorflow.python.client import device_lib
+from keras import Sequential
+from keras.layers import LSTM, Dense, Input
 
 
 def readFile(path):
@@ -66,31 +67,42 @@ def getDatasetAndLabels():
     label = []
     for data in dataList:
         t1, t2 = getTwoCountries(data[0], data[1], dataList)
+        if data[2] == data[3]:
+            continue
         for i in t1:
             for j in t2:
-                dataset.append([i[x] + j[x] for x in range(len(i))])
-                dataset.append([j[x] + i[x] for x in range(len(i))])
                 if data[2] > data[3]:
-                    label.append([1, 0, 0])
-                    label.append([0, 0, 1])
-                else:
+                    dataset.append([i[x] + j[x] for x in range(len(i))])
+                    dataset.append([j[x] + i[x] for x in range(len(i))])
+                    label.append([1, 0])
+                    label.append([0, 1])
+                elif data[2] > data[3]:
+                    dataset.append([i[x] + j[x] for x in range(len(i))])
+                    dataset.append([j[x] + i[x] for x in range(len(i))])
                     label.append([0, 1])
                     label.append([1, 0])
     return np.array(dataset), np.array(label)
 
 
-def getData(t1, t2):
-    team1, team2 = getTwoCountries(t1, t2)
-    data = [team1[0][i] + team2[0][i] for i in range(7)]
-    return np.array([data])
-
-
 if __name__ == '__main__':
-    reconstructed_model = keras.models.load_model("FIFAPredict")
-    t1, t2 = input('请输入球队编号（见Datas中countries.txt文件）：').split()
-    t1, t2 = int(t1), int(t2)
-    x = getData(t1, t2)
-    result = reconstructed_model.predict(x, verbose=0)
-    result = np.array(result[0])
-    result = result / sum(result)
-    print(f'队伍1获胜概率为{round(result[0] * 100, 2)}\n队伍2获胜概率为{round(result[1] * 100, 2)}')
+    try:
+        model = keras.models.load_model("FIFAPredict")
+    except Exception:
+        print('here')
+        model = Sequential()
+        model.add(Input(shape=(7, 4)))
+        model.add(LSTM(4, dropout=0.2))
+        model.add(Dense(2, activation='sigmoid'))
+
+    model.summary()
+
+    model.compile(
+        optimizer='adam',
+        loss='mean_squared_error',
+        metrics=['accuracy']
+    )
+
+    x, y = getDatasetAndLabels()
+    print(x.shape)
+    model.fit(x, y, epochs=100, batch_size=100)
+    model.save('FIFAPredict')
