@@ -93,4 +93,4 @@ if __name__ == '__main__':
     result = reconstructed_model.predict(x, verbose=0)
     result = np.array(result[0])
     result = result / sum(result)
-    print(f'队伍1获胜概率为{round(result[0] * 100, 2)}\n队伍2获胜概率为{round(result[1] * 100, 2)}')
+    print(f'队伍1获胜概率为{round(result[0] * 100, 2)}\n队伍2获胜概率为{round(result[2] * 100, 2)}\n进入加时赛概率为{round(result[1] * 100, 2)}')

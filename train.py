@@ -67,20 +67,23 @@ def getDatasetAndLabels():
     label = []
     for data in dataList:
         t1, t2 = getTwoCountries(data[0], data[1], dataList)
-        if data[2] == data[3]:
-            continue
         for i in t1:
             for j in t2:
                 if data[2] > data[3]:
                     dataset.append([i[x] + j[x] for x in range(len(i))])
                     dataset.append([j[x] + i[x] for x in range(len(i))])
-                    label.append([1, 0])
-                    label.append([0, 1])
-                elif data[2] > data[3]:
+                    label.append([1, 0, 0])
+                    label.append([0, 0, 1])
+                elif data[2] < data[3]:
                     dataset.append([i[x] + j[x] for x in range(len(i))])
                     dataset.append([j[x] + i[x] for x in range(len(i))])
-                    label.append([0, 1])
-                    label.append([1, 0])
+                    label.append([0, 0, 1])
+                    label.append([1, 0, 0])
+                else:
+                    dataset.append([i[x] + j[x] for x in range(len(i))])
+                    dataset.append([j[x] + i[x] for x in range(len(i))])
+                    label.append([0, 1, 0])
+                    label.append([0, 1, 0])
     return np.array(dataset), np.array(label)
 
 
@@ -92,7 +95,8 @@ if __name__ == '__main__':
         model = Sequential()
         model.add(Input(shape=(7, 4)))
         model.add(LSTM(4, dropout=0.2))
-        model.add(Dense(2, activation='sigmoid'))
+        model.add(Dense(10))
+        model.add(Dense(3, activation='sigmoid'))
 
     model.summary()
 
